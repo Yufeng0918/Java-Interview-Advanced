@@ -10,7 +10,7 @@
 数据的丢失问题，可能出现在生产者、MQ、消费者中，咱们从 RabbitMQ 和 Kafka 分别来分析一下吧。
 
 ### RabbitMQ
-![rabbitmq-message-lose](/images/rabbitmq-message-lose.png)
+![rabbitmq-message-lose](./images/rabbitmq-message-lose.png)
 
 #### 生产者弄丢了数据
 
@@ -24,19 +24,22 @@ try {
     // 这里发送消息
 } catch (Exception e) {
     channel.txRollback
-
     // 这里再次重发这条消息
 }
-
 // 提交事务
 channel.txCommit
 ```
 
 但是问题是，RabbitMQ 事务机制（同步）一搞，基本上**吞吐量会下来，因为太耗性能**。
 
+#### 生产者Confirm 机制 
+
 所以一般来说，如果你要确保说写 RabbitMQ 的消息别丢，可以开启 `confirm` 模式，在生产者那里设置开启 `confirm` 模式之后，你每次写的消息都会分配一个唯一的 id，然后如果写入了 RabbitMQ 中，RabbitMQ 会给你回传一个 `ack` 消息，告诉你说这个消息 ok 了。如果 RabbitMQ 没能处理这个消息，会回调你的一个 `nack` 接口，告诉你这个消息接收失败，你可以重试。而且你可以结合这个机制自己在内存里维护每个消息 id 的状态，如果超过一定时间还没接收到这个消息的回调，那么你可以重发。
 
-事务机制和 `confirm` 机制最大的不同在于，**事务机制是同步的**，你提交一个事务之后会**阻塞**在那儿，但是 `confirm` 机制是**异步**的，你发送个消息之后就可以发送下一个消息，然后那个消息 RabbitMQ 接收了之后会异步回调你的一个接口通知你这个消息接收到了。
+事务机制和 `confirm` 机制最大的不同在于
+
++ **事务机制是同步的**，你提交一个事务之后会阻塞在那儿，**太消耗性能**
++ **confirm机制是异步的**，你发送个消息之后就可以发送下一个消息，然后那个消息 RabbitMQ 接收了之后会异步回调你的一个接口通知你这个消息接收到了。
 
 所以一般在生产者这块**避免数据丢失**，都是用 `confirm` 机制的。
 
@@ -45,9 +48,9 @@ channel.txCommit
 
 设置持久化有**两个步骤**：
 
-- 创建 queue 的时候将其设置为持久化<br>
+- **创建 queue 的时候将其设置为持久化**<br>
 这样就可以保证 RabbitMQ 持久化 queue 的元数据，但是它是不会持久化 queue 里的数据的。
-- 第二个是发送消息的时候将消息的 `deliveryMode` 设置为 2<br>
+- **发送消息的时候将消息的 `deliveryMode` 设置为 2**<br>
 就是将消息设置为持久化的，此时 RabbitMQ 就会将消息持久化到磁盘上去。
 
 必须要同时设置这两个持久化才行，RabbitMQ 哪怕是挂了，再次重启，也会从磁盘上重启恢复 queue，恢复这个 queue 里的数据。
@@ -57,11 +60,11 @@ channel.txCommit
 所以，持久化可以跟生产者那边的 `confirm` 机制配合起来，只有消息被持久化到磁盘之后，才会通知生产者 `ack` 了，所以哪怕是在持久化到磁盘之前，RabbitMQ 挂了，数据丢了，生产者收不到 `ack`，你也是可以自己重发的。
 
 #### 消费端弄丢了数据
-RabbitMQ 如果丢失了数据，主要是因为你消费的时候，**刚消费到，还没处理，结果进程挂了**，比如重启了，那么就尴尬了，RabbitMQ 认为你都消费了，这数据就丢了。
+RabbitMQ 如果丢失了数据，主要是因为你消费的时候，**刚消费到，还没处理，结果进程挂了**，比如重启，RabbitMQ 认为你都消费了，这数据就丢了。
 
 这个时候得用 RabbitMQ 提供的 `ack` 机制，简单来说，就是你必须关闭 RabbitMQ 的自动 `ack`，可以通过一个 api 来调用就行，然后每次你自己代码里确保处理完的时候，再在程序里 `ack` 一把。这样的话，如果你还没处理完，不就没有 `ack` 了？那 RabbitMQ 就认为你还没处理完，这个时候 RabbitMQ 会把这个消费分配给别的 consumer 去处理，消息是不会丢的。
 
-![rabbitmq-message-lose-solution](/images/rabbitmq-message-lose-solution.png)
+![rabbitmq-message-lose-solution](./images/rabbitmq-message-lose-solution.png)
 
 ### Kafka
 
@@ -87,5 +90,5 @@ RabbitMQ 如果丢失了数据，主要是因为你消费的时候，**刚消费
 
 我们生产环境就是按照上述要求配置的，这样配置之后，至少在 Kafka broker 端就可以保证在 leader 所在 broker 发生故障，进行 leader 切换时，数据不会丢失。
 
-#### 生产者会不会弄丢数据？
+#### 生产者会不会弄丢数据
 如果按照上述的思路设置了 `acks=all`，一定不会丢，要求是，你的 leader 接收到消息，所有的 follower 都同步到了消息之后，才认为本次写成功了。如果没满足这个条件，生产者会自动不断的重试，重试无限次。
