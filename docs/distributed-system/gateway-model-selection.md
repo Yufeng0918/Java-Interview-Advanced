@@ -38,3 +38,13 @@ Spring Cloud微服务技术架构，基于Java开发，核心网关功能都比�
 
 自己来写类似Zuul的网关，基于Servlet、Netty来做网关，实现上述所有的功能
 
+
+
+## 2. 高并发
+
+![高性能网关Zuul](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/distributed-system/images/gateway-high-concurrency.png)
+
+**LVS + Nginx + Zuul**
+
+网关部署的机器，8核16G QPS 1000+， 每秒是1万请求，5 * 8核16G的机器部署Zuul网关
+
