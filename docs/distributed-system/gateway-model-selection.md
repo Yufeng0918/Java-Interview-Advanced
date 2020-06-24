@@ -42,9 +42,19 @@ Spring Cloud微服务技术架构，基于Java开发，核心网关功能都比�
 
 ## 2. 高并发
 
-![高性能网关Zuul](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/distributed-system/images/gateway-high-concurrency.png)
-
-**LVS + Nginx + Zuul**
+![高性能网关Zuul](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/distributed-system/images/gateway-high-concurrency.png)**LVS + Nginx + Zuul**
 
 网关部署的机器，8核16G QPS 1000+， 每秒是1万请求，5 * 8核16G的机器部署Zuul网关
+
+
+
+## 3. 灰度发布实践
+
+开发了一个新的服务，线上部署，配合网关动态路由的功能，在网关里配置一下路径和新服务的映射关系，此时请求过来直接就可以走到新的服务里去
+
+对已有服务进行迭代和开发，新版本，灰度发布，新版本部署少数几台机器，通过一个界面，开启这个服务的灰度发布，**此时zuul filter启用，按照你的规则，把少量的流量打入到新版本部署的机器上去**
+
+观察一下少量流量在新版本的机器上运行是否正常, 版本改成current，全量机器部署，关闭灰度发布功能，网关就会把流量均匀分发给那个服务了
+
+
 
