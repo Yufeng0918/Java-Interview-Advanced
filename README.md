@@ -34,26 +34,7 @@
 
 #### [分布式事务](./docs/distributed-system/deal-line.md)
 
-#### [分布式锁生](./docs/distributed-system/distributed-lock.md)
-
-
-
-- 
-
-- [37、画一下你们电商系统的核心交易链路图，说说分布式架构下存在什么问题？](./docs/distributed-system/deal-line.md)
-- [38、针对电商核心交易链路，你们是怎么设计分布式事务技术方案的？](./docs/distributed-system/work-distributed-transaction.md)
-- [39、对于TCC事务、最终一致性事务的技术选型，你们是怎么做的？如何调研的？](./docs/distributed-system/distributed-transaction-tcc.md)
-- [40、作业：你们公司的核心链路是否有事务问题？分布式事务方案怎么调研选型？](./docs/distributed-system/work-distributed-transaction.md)
-- [41、在搭建好的电商系统里，落地开发对交易链路的TCC分布式事务方案](./docs/distributed-system/tcc-landing-scheme.md)
-- [42、你能说说一个TCC分布式事务框架的核心架构原理吗？](./docs/distributed-system/tcc-framework-principle.md)
-- [43、现有的TCC事务方案的性能瓶颈在哪里？能支撑高并发交易场景吗？如何优化？](./docs/distributed-system/tcc-high-concurrence.md)
-- [44、作业：如果对自己的系统核心链路落地TCC事务，应该如何落地实现？](./docs/distributed-system/work-tcc-landing-scheme.md)
-- [45、你了解RocketMQ对分布式事务支持的底层实现原理吗？](./docs/distributed-system/rocketmq-transaction.md)
-- [46、在搭建好的电商系统里，如何基于RocketMQ最终一致性事务进行落地开发？](./docs/distributed-system/rocketmq-eventual-consistency.md)
-- [47、如果公司没有RocketMQ中间件，那你们如何实现最终一致性事务？](./docs/distributed-system/eventual-consistency.md)
-- [48、作业：如果对自己的系统落地最终一致性事务，如何落地实现？](./docs/distributed-system/work-eventual-consistency.md)
-
-
+#### [分布式锁](./docs/distributed-system/distributed-lock.md)
 
 
 
