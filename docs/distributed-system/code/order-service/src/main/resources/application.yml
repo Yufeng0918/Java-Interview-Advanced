@@ -1,0 +1,30 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: order-service
+    
+eureka:
+  instance:
+    hostname: localhost
+    metadata-map:
+      version: current
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+    registryFetchIntervalSeconds: 1
+    leaseRenewalIntervalInSeconds: 1
+    
+ribbon:
+  eager-load:
+    enabled: true
+  ConnectTimeout: 1000
+  ReadTimeout: 1000
+  OkToRetryOnAllOperations: true
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 1
+    
+feign:
+  hystrix:
+    enabled: false
