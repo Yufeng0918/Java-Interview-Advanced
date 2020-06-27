@@ -16,7 +16,7 @@
 
 
 
-## Synchronized 关键字
+## 1. Synchronized 关键字
 
 ### moniterenter 
 
@@ -70,7 +70,7 @@ monitorenter指令执行
 
 
 
-## CAS原理
+## 2. CAS原理
 
 **Get**：取值
 
@@ -93,7 +93,7 @@ i.incrementAndGet();
 
 
 
-## ConcurrentHashMap线程安全原理
+## 3. ConcurrentHashMap线程安全原理
 
 JDK 1.8以后，优化细粒度，一个数组，每个元素进行CAS，如果失败说明有人了，此时synchronized对数组元素加锁，链表+红黑树处理，对数组每个元素加锁
 
@@ -120,7 +120,7 @@ JDK并发包里推出了一个ConcurrentHashMap，他默认实现了线程安全
 
 
 
-## AQS - Abstract Queue Synchronizer
+## 4. AQS - Abstract Queue Synchronizer
 
 ReentrantLock, Semaphore 其他一些的并发包下的都是基于AQS「多线程同步器」实现的
 
@@ -162,7 +162,7 @@ state变量 -> CAS -> 失败后进入队列等待 -> 释放锁后唤醒
 
   
 
-## 线程池
+## 5. 线程池
 
 频繁的创建线程，销毁线程，创建线程，销毁线程
 
@@ -251,7 +251,7 @@ reject策略，可以传入 `RejectedExecutionHandler`
 
 
 
-## 内存模型
+## 6. 内存模型
 
 ```java
 public class HelloWorld {
@@ -368,7 +368,7 @@ flag = false; // 这个时候就尴尬了，代码疯狂死循环...
 
 
 
-## Volatile原理
+## 7. Volatile原理
 
 **volatile关键字是用来解决可见性和有序性**, 可以有限的保证原子性
 
@@ -432,29 +432,11 @@ java中有一个happens-before原则：
 + **线程终结规则**：**线程中所有的操作都先行发生于线程的终止检测**，我们可以通过Thread.join()方法结束、Thread.isAlive()的返回值手段检测到线程已经终止执行
 + **对象终结规则**：一个对象的**初始化完成先行发生于他的finalize()**方法的开始
 
-上面这8条原则的意思很显而易见，就是程序中的代码如果满足这个条件，就一定会按照这个规则来保证指令的顺序。
-
-很多同学说：好像没听懂，模模糊糊，这些规则写的非常的拗口，晦涩难懂，在面试的时候比如面试官问你，happens-before原则，你必须把8条规则都背出来，反问，没有任何一个人可以随意把这个规则背出来的
-
-规则制定了在一些特殊情况下，不允许编译器、指令器对你写的代码进行指令重排，必须保证你的代码的有序性
-
-但是如果没满足上面的规则，那么就可能会出现指令重排，就这个意思。
-
-这8条原则是避免说出现指令重排，要求是这几个重要的场景下，必须是按照顺序来，但是8条规则之外，可以随意重排指令。
-
-![https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6652f6ce-910c-4b68-94c9-7c1afebfded6/Untitled.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6652f6ce-910c-4b68-94c9-7c1afebfded6/Untitled.png)
-
-比如这个例子，如果用volatile来修饰flag变量，一定可以让prepare()指令在flag = true之前先执行，这就禁止了指令重排。
-
-因为volatile要求的是，volatile前面的代码一定不能指令重排到volatile变量操作后面，volatile后面的代码也不能指令重排到volatile前面。
-
-指令重排 ⇒ happens-before ⇒ volatile起到避免指令重排
-
 
 
 ### 不保证原子性
 
-volatile + 原子性：不能够保证原子性。
+volatile + 原子性：不能够保证原子性。**oracle 64bit long 类型不一定能保证原子性**
 
 保证原子性，synchronized，lock，加锁
 
@@ -462,35 +444,31 @@ volatile + 原子性：不能够保证原子性。
 
 ### 内存屏障
 
-volatile底层原理「内存屏障」，如何实现保证可见性的呢？如何实现保证有序性的呢？
+#### Lock指令：volatile保证可见性
 
-（1）lock指令：volatile保证可见性
-
-对volatile修饰的变量，执行写操作的话，JVM会发送一条lock前缀指令给CPU，CPU在计算完之后会立即将这个值写回主内存，同时因为有MESI缓存一致性协议，所以各个CPU都会对总线进行嗅探，自己本地缓存中的数据是否被别人修改
+对volatile修饰的变量，执行写操作的话，**JVM会发送一条lock前缀指令给CPU，CPU在计算完之后会立即将这个值写回主内存，同时因为有MESI缓存一致性协议，所以各个CPU都会对总线进行嗅探**，自己本地缓存中的数据是否被别人修改
 
 如果发现别人修改了某个缓存的数据，那么CPU就会将自己本地缓存的数据过期掉，然后这个CPU上执行的线程在读取那个变量的时候，就会从主内存重新加载最新的数据了
 
-```
-lock前缀指令`  + `MESI缓存一致性协议
-```
+**lock前缀指令 + MESI缓存一致性协议**
 
-（2）内存屏障：volatile禁止指令重排序
 
-volatille是如何保证有序性的？加了volatile的变量，可以保证前后的一些代码不会被指令重排，这个是如何做到的呢？指令重排是怎么回事，volatile就不会指令重排，简单介绍一下，内存屏障机制是非常非常复杂的，如果要讲解的很深入
+
+#### 内存屏障：volatile禁止指令重排序
+
+volatille是如何保证有序性的？加了volatile的变量，可以保证前后的一些代码不会被指令重排，这个是如何做到的呢？指令重排是怎么回事，volatile就不会指令重排。
 
 ```java
 Load1：
-
 int localVar = this.variable
 
 Load2：
-
 int localVar = this.variable2
 ```
 
 LoadLoad屏障：Load1；LoadLoad；Load2，确保Load1数据的装载先于Load2后所有装载指令，他的意思，Load1对应的代码和Load2对应的代码，是不能指令重排的
 
-```c++
+```java
 Store1：
 this.variable = 1
 
@@ -510,9 +488,7 @@ StoreLoad屏障：Store1；StoreLoad；Load2，确保Store1指令的数据一定
 volatile的作用是什么呢？
 
 volatile variable = 1
-
 this.variable = 2 => store操作
-
 int localVariable = this.variable => load操作
 ```
 
@@ -522,7 +498,7 @@ int localVariable = this.variable => load操作
 
 每个volatile读操作后面，加LoadLoad屏障，禁止下面的普通读和voaltile读重排；每个volatile读操作后面，加LoadStore屏障，禁止下面的普通写和volatile读重排
 
-并发这块，往深了讲
 
-- synchronized、volatile，底层都对应着一套复杂的cpu级别的硬件原理，大量的内存屏障的原理；
-- lock API，concurrenthashmap，都是各种复杂的jdk级别的源码，技术深度是很深入的
+
+
+
