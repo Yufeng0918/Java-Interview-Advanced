@@ -402,17 +402,11 @@ spring核心源码，spring核心架构图，里面包含了各种类和API之�
 
 ![](../images/spring-core3.png)
 
-
-
-
-
 #### BeanPostProcessor - postProcessAfterInit
 
 如果这个Bean实现了 `BeanPostProcessor` 接口，将会调用 `postProcessAfterInitialization(Object obj, String s)` 方法
 
 ![](../images/spring-core4.png)
-
-
 
 #### DisposableBean
 
@@ -482,7 +476,7 @@ public class MyService {
 
 
 
-## 8. Spring Web MVC 核心架构
+## 8. Spring Web MVC核心架构
 
 tomcat的工作线程将请求转交给spring mvc框架的**DispatcherServlet**
 
@@ -523,3 +517,13 @@ Spring Boot 做好了框架整合的工作，帮助我们屏蔽掉了集成框�
 没有Spring Boot之前：引入一些mybatis的jar包，还有mybatis依赖的一些其他的jar包，然后动手编写一些xml配置文件，然后定义一些bean，写一些sql语句，写一些dao代码，此时就可以使用mybatis去执行sql语句了
 
 只要引入一个starter，他会自动给你引入需要的一些jar包，做非常简单的、必须的一些配置，他会自动帮你去进行一些配置，定义和生成对应的bean。生成的bean自动注入比如你的dao里去，让你免去一些手工配置+定义bean的一些工作
+
+
+
+## 10. Spring Cloud核心架构
+
+![](../images/spring-cloud.png)
+
+spring cloud是让你去开发分布式系统，让你把系统拆分为很多的子系统，子系统互相之间进行请求和调用
+
+eureka、ribbon、feign、zuul、hystrix、链路追踪、其他组件，服务于分布式系统的，hystrix主要用于服务之间调用的熔断、隔离、降级。
