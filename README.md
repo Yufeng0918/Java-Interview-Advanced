@@ -47,9 +47,9 @@
 
 #### [开源框架](./docs/open-source-framework.md)
 
-JVM
+#### [JVM](./docs/jvm-core.md)
 
-网络
+#### [网络与IO](./docs/network-core.md)
 
 MySQL
 
@@ -57,11 +57,7 @@ MySQL
 
 系统安全
 
-网络与IO
-
 分布式系统
-
-中间件
 
 系统优化与设计
 
