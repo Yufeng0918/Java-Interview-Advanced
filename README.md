@@ -51,25 +51,11 @@
 
 #### [网络与IO](./docs/network-core.md)
 
-MySQL
+#### [数据库](./docs/database-core.md)
 
-线上生产实践
+#### [线上生产实践](./docs/production-core.md)
 
-系统安全
-
-分布式系统
-
-系统优化与设计
-
-
-
-
-
-
-
-
-
-
+#### [系统安全](./docs/system-security.md)
 
 
 
