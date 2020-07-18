@@ -86,13 +86,13 @@
 
 看这么个场景。A 系统发送数据到 BCD 三个系统，通过接口调用发送。如果 E 系统也要这个数据呢？那如果 C 系统现在不需要了呢？A 系统负责人几乎崩溃......
 
-![mq-1](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/mq-1.png)
+![mq-1](./images/mq-1.png)
 
 在这个场景中，A 系统跟其它各种乱七八糟的系统严重耦合，A 系统产生一条比较关键的数据，很多系统都需要 A 系统将这个数据发送过来。A 系统要时时刻刻考虑 BCDE 四个系统如果挂了该咋办？要不要重发，要不要把消息存起来？头发都白了啊！
 
 如果使用 MQ，A 系统产生一条数据，发送到 MQ 里面去，哪个系统需要数据自己去 MQ 里面消费。如果新系统需要数据，直接从 MQ 里消费即可；如果某个系统不需要这条数据了，就取消对 MQ 消息的消费即可。这样下来，A 系统压根儿不需要去考虑要给谁发送数据，不需要维护这个代码，也不需要考虑人家是否调用成功、失败超时等情况。
 
-![mq-2](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/mq-2.png)
+![mq-2](./images/mq-2.png)
 
 **总结**：通过一个 MQ，Pub/Sub 发布订阅消息这么一个模型，A 系统就跟其它系统彻底解耦了。
 
@@ -104,13 +104,13 @@
 
 再来看一个场景，A 系统接收一个请求，需要在自己本地写库，还需要在 BCD 三个系统写库，自己本地写库要 3ms，BCD 三个系统分别写库要 300ms、450ms、200ms。最终请求总延时是 3 + 300 + 450 + 200 = 953ms，接近 1s，用户感觉搞个什么东西，慢死了慢死了。用户通过浏览器发起请求，等待个 1s，这几乎是不可接受的。
 
-![mq-3](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/mq-3.png)
+![mq-3](./images/mq-3.png)
 
 一般互联网类的企业，对于用户直接的操作，一般要求是每个请求都必须在 200 ms 以内完成，对用户几乎是无感知的。
 
 如果**使用 MQ**，那么 A 系统连续发送 3 条消息到 MQ 队列中，假如耗时 5ms，A 系统从接受一个请求到返回响应给用户，总时长是 3 + 5 = 8ms，对于用户而言，其实感觉上就是点个按钮，8ms 以后就直接返回了，爽！网站做得真好，真快！
 
-![mq-4](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/mq-4.png)
+![mq-4](./images/mq-4.png)
 
 
 
@@ -122,11 +122,11 @@
 
 但是高峰期一过，到了下午的时候，就成了低峰期，可能也就 1w 的用户同时在网站上操作，每秒中的请求数量可能也就 50 个请求，对整个系统几乎没有任何的压力。
 
-![mq-5](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/mq-5.png)
+![mq-5](./images/mq-5.png)
 
 如果使用 MQ，每秒 5k 个请求写入 MQ，A 系统每秒钟最多处理 2k 个请求，因为 MySQL 每秒钟最多处理 2k 个。A 系统从 MQ 中慢慢拉取请求，每秒钟就拉取 2k 个请求，不要超过自己每秒能处理的最大请求数量就 ok，这样下来，哪怕是高峰期的时候，A 系统也绝对不会挂掉。而 MQ 每秒钟 5k 个请求进来，就 2k 个请求出去，结果就导致在中午高峰期（1 个小时），可能有几十万甚至几百万的请求积压在 MQ 中。
 
-![mq-6](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/mq-6.png)
+![mq-6](./images/mq-6.png)
 
 这个短暂的高峰期积压是 ok 的，因为高峰期过了之后，每秒钟就 50 个请求进 MQ，但是 A 系统依然会按照每秒 2k 个请求的速度在处理。所以说，只要高峰期一过，A 系统就会快速将积压的消息给解决掉。
 
@@ -250,12 +250,12 @@ Kafka 0.8 以前，是没有 HA 机制的，就是任何一个 broker 宕机了�
 
 ## 4. 消息队列重复消费
 
-回答这个问题，首先你别听到重复消息这个事儿，就一无所知吧，你**先大概说一说可能会有哪些重复消费的问题**。首先，比如 RabbitMQ、RocketMQ、Kafka，都有可能会出现消息重复消费的问题，正常。因为这问题通常不是 MQ 自己保证的，是由我们开发来保证的。挑一个 Kafka 来举个例子，说说怎么重复消费吧。Kafka 实际上有个 offset 的概念，就是每个消息写进去，都有一个 offset，代表消息的序号，然后 consumer 消费了数据之后，**每隔一段时间**（定时定期），会把自己消费过的消息的 offset 提交一下，表示“我已经消费过了，下次我要是重启啥的，你就让我继续从上次消费到的 offset 来继续消费吧”。但是凡事总有意外，比如我们之前生产经常遇到的，就是你有时候重启系统，看你怎么重启了，如果碰到点着急的，直接 kill 进程了，再重启。这会导致 consumer 有些消息处理了，但是没来得及提交 offset，尴尬了。重启之后，少数消息会再次消费一次。举个栗子。有这么个场景。数据 1/2/3 依次进入 kafka，kafka 会给这三条数据每条分配一个 offset，代表这条数据的序号，我们就假设分配的 offset 依次是 152/153/154。消费者从 kafka 去消费的时候，也是按照这个顺序去消费。假如当消费者消费了 `offset=153` 的这条数据，刚准备去提交 offset 到 zookeeper，此时消费者进程被重启了。那么此时消费过的数据 1/2 的 offset 并没有提交，kafka 也就不知道你已经消费了 `offset=153` 这条数据。那么重启之后，消费者会找 kafka 说，嘿，哥儿们，你给我接着把上次我消费到的那个地方后面的数据继续给我传递过来。由于之前的 offset 没有提交成功，那么数据 1/2 会再次传过来，如果此时消费者没有去重的话，那么就会导致重复消费。![mq-10](file:///Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/mq-10.png?lastModify=1592525258)如果消费者干的事儿是拿一条数据就往数据库里写一条，会导致说，你可能就把数据 1/2 在数据库里插入了 2 次，那么数据就错啦。其实重复消费不可怕，可怕的是你没考虑到重复消费之后，**怎么保证幂等性**。举个例子吧。假设你有个系统，消费一条消息就往数据库里插入一条数据，要是你一个消息重复两次，你不就插入了两条，这数据不就错了？但是你要是消费到第二次的时候，自己判断一下是否已经消费过了，若是就直接扔了，这样不就保留了一条数据，从而保证了数据的正确性。一条数据重复出现两次，数据库里就只有一条数据，这就保证了系统的幂等性。幂等性，通俗点说，就一个数据，或者一个请求，给你重复来多次，你得确保对应的数据是不会改变的，**不能出错**。所以第二个问题来了，怎么保证消息队列消费的幂等性？**其实还是得结合业务来思考**，我这里给几个思路：
+回答这个问题，首先你别听到重复消息这个事儿，就一无所知吧，你**先大概说一说可能会有哪些重复消费的问题**。首先，比如 RabbitMQ、RocketMQ、Kafka，都有可能会出现消息重复消费的问题，正常。因为这问题通常不是 MQ 自己保证的，是由我们开发来保证的。挑一个 Kafka 来举个例子，说说怎么重复消费吧。Kafka 实际上有个 offset 的概念，就是每个消息写进去，都有一个 offset，代表消息的序号，然后 consumer 消费了数据之后，**每隔一段时间**（定时定期），会把自己消费过的消息的 offset 提交一下，表示“我已经消费过了，下次我要是重启啥的，你就让我继续从上次消费到的 offset 来继续消费吧”。但是凡事总有意外，比如我们之前生产经常遇到的，就是你有时候重启系统，看你怎么重启了，如果碰到点着急的，直接 kill 进程了，再重启。这会导致 consumer 有些消息处理了，但是没来得及提交 offset，尴尬了。重启之后，少数消息会再次消费一次。举个栗子。有这么个场景。数据 1/2/3 依次进入 kafka，kafka 会给这三条数据每条分配一个 offset，代表这条数据的序号，我们就假设分配的 offset 依次是 152/153/154。消费者从 kafka 去消费的时候，也是按照这个顺序去消费。假如当消费者消费了 `offset=153` 的这条数据，刚准备去提交 offset 到 zookeeper，此时消费者进程被重启了。那么此时消费过的数据 1/2 的 offset 并没有提交，kafka 也就不知道你已经消费了 `offset=153` 这条数据。那么重启之后，消费者会找 kafka 说，嘿，哥儿们，你给我接着把上次我消费到的那个地方后面的数据继续给我传递过来。由于之前的 offset 没有提交成功，那么数据 1/2 会再次传过来，如果此时消费者没有去重的话，那么就会导致重复消费。![mq-10](file://./images/mq-10.png?lastModify=1592525258)如果消费者干的事儿是拿一条数据就往数据库里写一条，会导致说，你可能就把数据 1/2 在数据库里插入了 2 次，那么数据就错啦。其实重复消费不可怕，可怕的是你没考虑到重复消费之后，**怎么保证幂等性**。举个例子吧。假设你有个系统，消费一条消息就往数据库里插入一条数据，要是你一个消息重复两次，你不就插入了两条，这数据不就错了？但是你要是消费到第二次的时候，自己判断一下是否已经消费过了，若是就直接扔了，这样不就保留了一条数据，从而保证了数据的正确性。一条数据重复出现两次，数据库里就只有一条数据，这就保证了系统的幂等性。幂等性，通俗点说，就一个数据，或者一个请求，给你重复来多次，你得确保对应的数据是不会改变的，**不能出错**。所以第二个问题来了，怎么保证消息队列消费的幂等性？**其实还是得结合业务来思考**，我这里给几个思路：
 
 + 比如你拿个数据要写库，你先根据主键查一下，如果这数据都有了，你就别插入了，update 一下好吧。
 + 比如你是写 Redis，那没问题了，反正每次都是 set，天然幂等性。
 + 比如你不是上面两个场景，那做的稍微复杂一点，你需要让生产者发送每条数据的时候，**里面加一个全局唯一的 id，类似订单 id 之类的东西**，然后你这里消费到了之后，先根据这个 id 去比如 Redis 里查一下，之前消费过吗？如果没有消费过，你就处理，然后这个 id 写 Redis。如果消费过了，那你就别处理了，保证别重复处理相同的消息即可。
-+ **比如基于数据库的唯一键来保证重复数据不会重复插入多条。因为有唯一键约束了，重复数据插入只会报错，不会导致数据库中出现脏数据**。![mq-11](file:///Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/mq-11.png?lastModify=1592525258)
++ **比如基于数据库的唯一键来保证重复数据不会重复插入多条。因为有唯一键约束了，重复数据插入只会报错，不会导致数据库中出现脏数据**。![mq-11](file://./images/mq-11.png?lastModify=1592525258)
 
 
 
@@ -265,7 +265,7 @@ Kafka 0.8 以前，是没有 HA 机制的，就是任何一个 broker 宕机了�
 
 ### RabbitMQ
 
-![rabbitmq-message-lose](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/rabbitmq-message-lose.png)
+![rabbitmq-message-lose](./images/rabbitmq-message-lose.png)
 
 #### 生产者弄丢了数据
 
@@ -322,7 +322,7 @@ RabbitMQ 如果丢失了数据，主要是因为你消费的时候，**刚消费
 
 这个时候得用 RabbitMQ 提供的 `ack` 机制，简单来说，就是你必须关闭 RabbitMQ 的自动 `ack`，可以通过一个 api 来调用就行，然后每次你自己代码里确保处理完的时候，再在程序里 `ack` 一把。这样的话，如果你还没处理完，不就没有 `ack` 了？那 RabbitMQ 就认为你还没处理完，这个时候 RabbitMQ 会把这个消费分配给别的 consumer 去处理，消息是不会丢的。
 
-![rabbitmq-message-lose-solution](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/rabbitmq-message-lose-solution.png)
+![rabbitmq-message-lose-solution](./images/rabbitmq-message-lose-solution.png)
 
 ### Kafka
 
@@ -367,25 +367,25 @@ RabbitMQ 如果丢失了数据，主要是因为你消费的时候，**刚消费
 
 - **RabbitMQ**：一个 queue，多个 consumer。比如，生产者向 RabbitMQ 里发送了三条数据，顺序依次是 data1/data2/data3，压入的是 RabbitMQ 的一个内存队列。有三个消费者分别从 MQ 中消费这三条数据中的一条，结果消费者2先执行完操作，把 data2 存入数据库，然后是 data1/data3。这不明显乱了。
 
-![rabbitmq-order-01](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/rabbitmq-order-01.png)
+![rabbitmq-order-01](./images/rabbitmq-order-01.png)
 
 - **Kafka**：比如说我们建了一个 topic，有三个 partition。生产者在写的时候，其实可以指定一个 key，比如说我们指定了某个订单 id 作为 key，那么这个订单相关的数据，一定会被分发到同一个 partition 中去，而且这个 partition 中的数据一定是有顺序的。<br>消费者从 partition 中取出来数据的时候，也一定是有顺序的。到这里，顺序还是 ok 的，没有错乱。接着，我们在消费者里可能会搞**多个线程来并发处理消息**。因为如果消费者是单线程消费处理，而处理比较耗时的话，比如处理一条消息耗时几十 ms，那么 1 秒钟只能处理几十条消息，这吞吐量太低了。而多个线程并发跑的话，顺序可能就乱掉了。
 
-![kafka-order-01](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/kafka-order-01.png)
+![kafka-order-01](./images/kafka-order-01.png)
 
 ### 解决方案
 
 #### RabbitMQ
 
 拆分多个 queue，每个 queue 一个 consumer，就是多一些 queue 而已，确实是麻烦点；或者就一个 queue 但是对应一个 consumer，然后这个 consumer 内部用内存队列做排队，然后分发给底层不同的 worker 来处理。
-![rabbitmq-order-02](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/rabbitmq-order-02.png)
+![rabbitmq-order-02](./images/rabbitmq-order-02.png)
 
 #### Kafka
 
 - 一个 topic，一个 partition，一个 consumer，内部单线程消费，单线程吞吐量太低，一般不会用这个。
 - 写 N 个内存 queue，具有相同 key 的数据都到同一个内存 queue；然后对于 N 个线程，每个线程分别消费一个内存 queue 即可，这样就能保证顺序性。
 
-![kafka-order-02](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-concurrency/images/kafka-order-02.png)
+![kafka-order-02](./images/kafka-order-02.png)
 
 
 
@@ -397,7 +397,7 @@ RabbitMQ 如果丢失了数据，主要是因为你消费的时候，**刚消费
 
 几千万条数据在 MQ 里积压了七八个小时，从下午 4 点多，积压到了晚上 11 点多。这个是我们真实遇到过的一个场景，确实是线上故障了，这个时候要不然就是修复 consumer 的问题，让它恢复消费速度，然后傻傻的等待几个小时消费完毕。这个肯定不能在面试的时候说吧。
 
-一个消费者一秒是 1000 条，一秒 3 个消费者是 3000 条，一分钟就是 18 万条。所以如果你积压了几百万到上千万的数据，即使消费者恢复了，也需要大概 1 小时的时间才能恢复过来。
+一个消费者一秒是 1000 一秒 3 个消费者是 3000 条，一分钟就是 18 万条。所以如果你积压了几百万到上千万的数据，即使消费者恢复了，也需要大概 1 小时的时间才能恢复过来。
 
 一般这个时候，只能临时紧急扩容了，具体操作步骤和思路如下：
 
