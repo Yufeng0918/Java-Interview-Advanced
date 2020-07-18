@@ -200,7 +200,7 @@ key:value
 
 #### DNS是Domain Name System
 
-因为我们一般定位是通过ip地址+mac地址+端口号来定位一个通信目标的，[但是如果在浏览器上输入一个www.baidu.com](http://xn--www-p18dvb2l99ef2g44n3zbgyltu6bv4dw5y4t1h9mta.baidu.com)，咋整？这个时候是先把www.baidu.com发给DNS服务器，然后DNS服务器告诉你www.baidu.com对应的ip地址的。
+因为我们一般定位是通过ip地址+mac地址+端口号来定位一个通信目标的，[但是如果在浏览器上输入一个www.baidu.com。这个时候是先把www.baidu.com发给DNS服务器，然后DNS服务器告诉你www.baidu.com对应的ip地址的。
 
 **8.8.8.8 DNS服务器，会把DNS翻译成ip地址**
 
