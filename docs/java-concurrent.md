@@ -502,3 +502,14 @@ int localVariable = this.variable => load操作
 
 
 
+## 8. ThreadLocal内存泄露
+
+我们的每个线程可以通过ThreadLocal来存取自己线程专属的一个变量副本，**ThreadLocalMap，Key-Value，Key是WeakReference，弱引用，value就是你自己放的变量副本**
+
+比如说你的线程长期存活，**ThreadLocal里会一直有你这个线程的key-value对**，万一说出现一些内存不够的情况，进行了gc，此时就会自动把很多线程在ThreadLocal里存放的key-value对的key，弱引用，都会进行回收。null -> value
+
+ 
+
+JDK团队都有解决的方案了，**你在通过ThreadLocal，set、get、remove，他会自动清理掉map里值为null的key**，**确保不要有很多的null值引用了你的value造成内存的泄漏问题**，这个就是一个他的自己的解决方案
+
+你不要老是让一个长期存活的线程，线程池里的线程，要不然可能是你自己开启的线程在后台长期运行，尽量避免在ThreadLocal长期放入数据，你不使用的时候最好及时的进行remove，自己主动把数据给删除了
