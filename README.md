@@ -40,7 +40,7 @@
 
 #### [Java核心](./docs/java-collection.md)
 
-#### [Java并发包](./docs/java-concurrent.md)
+#### [并发](./docs/java-concurrent.md)
 
 #### [开源框架](./docs/open-source-framework.md)
 
