@@ -51,3 +51,4 @@ Dubbo，HBase，HDFS，Kafka，Canal，Storm，Solr。**分布式集群的集中
  HDFS，面向的超大文件，切割成一个一个的小块儿，分布式存储在一个大的集群里
 
 分布式海量小文件系统：NameNode的HA架构，仿照HDFS的NameNode的HA架构，做主备两个NameNode，进行数据同步，然后自动基于zk进行热切换
+
