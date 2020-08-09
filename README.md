@@ -56,6 +56,8 @@
 
 #### [分布式架构](./docs/distributed-system-advance.md)
 
+#### [Zookeeper](./docs/zookeeper-core.md)
+
 
 
 
