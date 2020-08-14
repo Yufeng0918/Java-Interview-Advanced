@@ -46,10 +46,6 @@
 
 #### [JVM](./docs/jvm-core.md)
 
-#### [网络与IO](./docs/network-core.md)
-
-#### [数据库](./docs/database-core.md)
-
 #### [线上生产实践](./docs/production-core.md)
 
 #### [系统安全](./docs/system-security.md)
@@ -65,9 +61,7 @@
 #### [操作系统](./docs/os.md)
 
 
-
-#### [网络](./docs/network.md)
-
+#### [网络与IO](./docs/network-core.md)
 
 
-#### [数据库](./docs/database.md)
+#### [数据库](./docs/database-core.md)
