@@ -19,9 +19,11 @@ mysql 这么重的数据库，mysql 单机支撑到 `2000QPS` 也开始容易报
 
 ### 用了缓存之后会不良后果
 常见的缓存问题有以下几个：
-- [缓存与数据库双写不一致](../high-concurrency/redis-consistence.md)
-- [缓存雪崩、缓存穿透](../high-concurrency/redis-caching-avalanche-and-caching-penetration.md)
-- [缓存并发竞争](../high-concurrency/redis-cas.md)
+- 缓存与数据库双写不一致
+- 缓存雪崩，缓存穿透
+- 缓存并发竞争
+
+
 
 ## 2. Redis 线程模型
 
@@ -150,7 +152,7 @@ redis 内部使用文件事件处理器 `file event handler`，这个文件事�
 文件事件处理器的结构包含 4 个部分：
 
 - 多个 socket
-- IO 多路复用程序
+- IO 多路复用(**Multiplexing**)程序
 - 文件事件分派器
 - 事件处理器（连接应答处理器、命令请求处理器、命令回复处理器）
 
@@ -412,9 +414,7 @@ sentinel，中文名是哨兵。哨兵是 redis 集群机构中非常重要的�
 
 主备切换的过程，可能会导致数据丢失：
 
-- 异步复制导致的数据丢失
-
-因为 master->slave 的复制是异步的，所以可能有部分数据还没复制到 slave，master 就宕机了，此时这部分数据就丢失了。
+- 异步复制导致的数据丢失, 因为 master->slave 的复制是异步的，所以可能有部分数据还没复制到 slave，master 就宕机了，此时这部分数据就丢失了。
 
 ![async-replication-data-lose-case](./images/async-replication-data-lose-case.png)
 
@@ -570,7 +570,7 @@ sdown 达成的条件很简单，如果一个哨兵 ping 一个 master，超过�
 
 redis cluster，主要是针对**海量数据+高并发+高可用**的场景。**redis cluster 支撑 N 个 redis master node，每个 master node 都可以挂载多个 slave node。**这样整个 redis 就可以横向扩容了。如果你要支撑更大数据量的缓存，那就横向扩容更多的 master 节点，每个 master 节点就能存放更多的数据了。
 
-## 
+
 
 ### 集群介绍
 
@@ -616,7 +616,7 @@ redis-trib.rb add-node
 其实内部就是发送了一个 gossip meet 消息给新加入的节点，通知那个节点去加入我们的集群。
 
 - ping：**每个节点都会频繁给其它节点发送 ping，其中包含自己的状态还有部分集群元数据**，互相通过 ping 交换元数据。
-- pong：返回 ping 和 meeet，包含**自己的状态和其它信息**，也用于信息广播和更新。
+- pong：返回 ping 和 meet，包含**自己的状态和其它信息**，也用于信息广播和更新。
 - fail：某个节点判断另一个节点 fail 之后，就发送 fail 给其它节点，通知其它节点说，某个节点宕机啦。
 
 #### ping 消息深入
