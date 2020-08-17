@@ -539,7 +539,7 @@ Cookie和Session都是客户端与服务器之间保持状态的解决方案，�
 
 Cookie实际上是一小段的文本信息。客户端请求服务器，如果服务器需要记录该用户状态，就使用response向客户端浏览器颁发一个Cookie，而客户端浏览器会把Cookie保存起来。当浏览器再请求该网站时，浏览器把请求的网址连同该Cookie一同提交给服务器，服务器检查该Cookie，以此来辨认用户状态。服务器还可以根据需要修改Cookie的内容。
 
-　　　　　　　　　　　![Cookoe-HttpServletResponse.png-38.6kB](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/images/network-01.png)
+![Cookoe-HttpServletResponse.png-38.6kB](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/images/network-01.png)
 
 　　　　　　　　　　　![HttpServletrequest-cookie.png-8.6kB](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/images/network-02.png)
 

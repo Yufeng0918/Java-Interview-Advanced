@@ -675,7 +675,7 @@ MySQL的慢查询日志是MySQL提供的一种日志记录，它用来记录在M
 
 
 
-### drop、delete与truncate的区别
+### drop, delete, truncate的区别
 
 SQL中的drop、delete、truncate都表示删除，但是三者有一些差别：
 
