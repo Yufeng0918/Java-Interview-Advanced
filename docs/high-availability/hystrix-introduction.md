@@ -45,7 +45,7 @@ Hystrix 可以对其进行资源隔离，比如限制服务 B 只有 40 个线�
 
 小型电商网站的页面展示采用页面全量静态化的思想。数据库中存放了所有的商品信息，页面静态化系统，将数据填充进静态模板中，形成静态化页面，推入 Nginx 服务器。用户浏览网站页面时，取用一个已经静态化好的 html 页面，直接返回回去，不涉及任何的业务逻辑处理。
 
-![e-commerce-website-detail-page-architecture-1](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-availability/images/e-commerce-website-detail-page-architecture-1.png)
+![e-commerce-website-detail-page-architecture-1](../high-availability/images/e-commerce-website-detail-page-architecture-1.png)
 
 下面是页面模板的Demo
 
@@ -71,7 +71,7 @@ Hystrix 可以对其进行资源隔离，比如限制服务 B 只有 40 个线�
 
 用户浏览网页时，动态将 Nginx 本地数据渲染到本地 html 模板并返回给用户。
 
-![e-commerce-website-detail-page-architecture-2](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-availability/images/e-commerce-website-detail-page-architecture-2.png)
+![e-commerce-website-detail-page-architecture-2](../high-availability/images/e-commerce-website-detail-page-architecture-2.png)
 
 
 虽然没有直接返回 html 页面那么快，但是因为数据在本地缓存，所以也很快，其实耗费的也就是动态渲染一个 html 页面的性能。如果 html 模板发生了变更，不需要将所有的页面重新静态化，也不需要发送请求，没有网络请求的开销，直接将数据渲染进最新的 html 页面模板后响应即可。
@@ -198,7 +198,7 @@ public String getProductInfos(String productIds) {
 
 我们回过头来，看看 Hystrix 线程池技术是如何实现资源隔离的。
 
-![hystrix-thread-pool-isolation](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-availability/images/hystrix-thread-pool-isolation.png)
+![hystrix-thread-pool-isolation](../high-availability/images/hystrix-thread-pool-isolation.png)
 
 从 Nginx 开始，缓存都失效了，那么 Nginx 通过缓存服务去调用商品服务。缓存服务默认的线程大小是 10 个，最多就只有 10 个线程去调用商品服务的接口。即使商品服务接口故障了，最多就只有 10 个线程会 hang 死在调用商品服务接口的路上，缓存服务的 tomcat 内其它的线程还是可以用来调用其它的服务，干其它的事情。
 
@@ -216,7 +216,7 @@ Hystrix 实现资源隔离默认情况下，Hystrix 使用线程池模式。
 
 信号量的资源隔离只是起到一个开关的作用，比如，服务 A 的信号量大小为 10，那么就是说它同时只允许有 10 个 tomcat 线程来访问服务 A，其它的请求都会被拒绝，从而达到资源隔离和限流保护的作用。
 
-![hystrix-semphore](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-availability/images/hystrix-semphore.png)
+![hystrix-semphore](/docs/high-availability/images/hystrix-semphore.png)
 
 ### 线程池与信号量区别
 
@@ -224,7 +224,7 @@ Hystrix 实现资源隔离默认情况下，Hystrix 使用线程池模式。
 
 **线程池隔离技术，是用 Hystrix 自己的线程去执行调用**；而**信号量隔离技术，是直接让 tomcat 线程去调用依赖服务**。信号量隔离，只是一道关卡，信号量有多少，就允许多少个 tomcat 线程通过它，然后去执行。
 
-![hystrix-semphore-thread-pool](/Users/daiyu/dev/idea/architect/Java-Interview-Advanced/docs/high-availability/images/hystrix-semphore-thread-pool.png)
+![hystrix-semphore-thread-pool](../high-availability/images/hystrix-semphore-thread-pool.png)
 
 **适用场景**：
 
@@ -1129,9 +1129,8 @@ Hystrix 对每个外部依赖用一个单独的线程池，这样的话，如果
 
 ### 线程池机制的缺点
 
-- 线程池机制最大的缺点就是增加了 CPU 的开销。<br>
-  除了 tomcat 本身的调用线程之外，还有 Hystrix 自己管理的线程池。
-
+- 线程池机制最大的缺点就是增加了 CPU 的开销, 除了 tomcat 本身的调用线程之外，还有 Hystrix 自己管理的线程池。
+  
 - 每个 command 的执行都依托一个独立的线程，会进行排队，调度，还有上下文切换。
 - Hystrix 官方自己做了一个多线程异步带来的额外开销统计，通过对比多线程异步调用+同步调用得出，Netflix API 每天通过 Hystrix 执行 10 亿次调用，每个服务实例有 40 个以上的线程池，每个线程池有 10 个左右的线程。最后发现说，用 Hystrix 的额外开销，就是给请求带来了 3ms 左右的延时，最多延时在 10ms 以内，相比于可用性和稳定性的提升，这是可以接受的。
 
