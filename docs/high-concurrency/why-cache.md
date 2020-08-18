@@ -385,7 +385,7 @@ sentinel，中文名是哨兵。哨兵是 redis 集群机构中非常重要的�
 ```
 2 个哨兵，majority=2
 3 个哨兵，majority=2
-4 个哨兵，majority=2
+4 个哨兵，majority=3
 5 个哨兵，majority=3
 ...
 ```
