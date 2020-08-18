@@ -4,4 +4,4 @@
 **/target
 **/*.prefs
 **/.idea
-**/*.iml
+**.iml
