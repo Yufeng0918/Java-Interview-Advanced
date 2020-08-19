@@ -117,8 +117,6 @@ private void grow(int minCapacity) {
 }
 ```
 
-
-
 + 数组扩容的时候，他是怎么扩的，老的大小 + 老的大小 >> 1（相当于除以2），实现了一个数组的拷贝
 
 + 最新的数组，变成了可以容纳15个元素的数组，但是此时数组中只有10个元素
@@ -294,8 +292,6 @@ int threshold;
 
 map.put(key, value) -> 对key进行hash算法，通过hash获取到对应的数组中的index位置
 
-
-
 ```java
 public V put(K key, V value) {
    return putVal(hash(key), key, value, false, true);
@@ -314,8 +310,6 @@ hash(key)，对key进行hash获取一个对应的hash值，key、value传入到p
  
 
 h = key.hashCode()：这个就是直接获取了key的hash值，通过的是hashCode()方法
-
- 
 
 > 1111 1111 1111 1111 1111 1010 0111 1100
 > h >>> 16，这个是位运算的操作，这个东西是把32位的二进制的数字，所有的bit往右侧右移了16位
@@ -341,16 +335,12 @@ h = key.hashCode()：这个就是直接获取了key的hash值，通过的是hash
 
 **很多key，可能值不同，但是hash值可能是相同的，如果key不同，但是hash值相同，或者是hash值不同，但是到数组的index相同，那么都会出现hash冲突**
 
-
-
 ```java
 if ((tab = table) == null || (n = tab.length) == 0)
 	n = (tab = resize()).length;
 ```
 
 刚开始table数组是空的，所以会分配一个默认大小的一个数组，数组大小是16，负载因子是0.75，threshold是12
-
- 
 
 ```java
 if ((p = tab[i = (n - 1) & hash]) == null) 
@@ -405,8 +395,6 @@ if ((tab = table) == null || (n = tab.length) == 0)
                 return oldValue;
             }
 ```
-
-
 
 + 比较hashcode，比较key，如果key一样，就是相同的key在进行value的覆盖
 + 出现了hash冲突，然后此时还不是红黑树的数据结构，还是链表的数据结构

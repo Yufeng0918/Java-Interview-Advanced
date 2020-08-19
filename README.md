@@ -20,8 +20,6 @@
 
 #### [人才要求](./docs/distributed-system/distributed-design.md)
 
-#### [Dubbo和Spring Cloud分布式服务框架](./docs/distributed-system/core-architecture-principle%20.md)
-
 #### [Dubbo和Spring Cloud框架原理](./docs/distributed-system/dubbo-framework-principle.md)
 
 #### [服务注册中心](./docs/distributed-system/registration-center-guide.md)

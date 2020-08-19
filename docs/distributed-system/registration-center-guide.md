@@ -1,7 +1,5 @@
 # 服务注册中心
 
-
-
 非常常见的一个技术面试题，但凡只要是聊到分布式这块，Dubbo，Spring Cloud，服务注册中心，你们当时是怎么选型和调研的，你们最终是选择了哪块技术呢？你选择这块技术的原因和理由是什么呢？
 
 **Eureka vs ZooKeeper**
@@ -75,15 +73,15 @@ zookeeper服务注册和发现，都是很快的
 ```properties
 //服务注册中心缓存更新时间
 eureka.server.responseCacheUpdateIntervalMs = 3000
-//服务消费者拉取注册表间隔时间
-eureka.client.registryFetchIntervalSeconds = 3000
-
-//消费端心跳时间
-eureka.client.leaseRenewalIntervalInSeconds = 3
 //服务端检查心跳
 eureka.server.evictionIntervalTimerInMs = 6000
 //服务过期时间
 eureka.instance.leaseExpirationDurationInSeconds = 6
+
+//服务消费者拉取注册表间隔时间
+eureka.client.registryFetchIntervalSeconds = 3000
+//消费端心跳时间
+eureka.client.leaseRenewalIntervalInSeconds = 3
 ```
 
 **服务发现的时效性变成秒级，几秒钟可以感知服务的上线和下线**
