@@ -659,7 +659,7 @@ linux的消息队列可以认为是个链表结构，linux内核有一个**msgqu
 
 ### BIO
 
-这个其实就是最传统的网络通信模型，就是BIO，同步阻塞式IO，简单来说大家如果参加过几个月的培训班儿应该都知道这种BIO网络通信方式。就是服务端创建一个ServerSocket，然后客户端用一个Socket去连接那个ServerSocket，然后ServerSocket接收到一个Socket的连接请求就创建一个Socket和一个线程去跟那个Socket进行通信。
+最传统的网络通信模型，就是BIO，同步阻塞式IO。就是服务端创建一个ServerSocket，然后客户端用一个Socket去连接那个ServerSocket，然后ServerSocket接收到一个Socket的连接请求就创建一个Socket和一个线程去跟那个Socket进行通信。
 
 然后客户端和服务端的socket，就进行同步阻塞式的通信，客户端socket发送一个请求，服务端socket进行处理后返回响应，响应必须是等处理完后才会返回，在这之前啥事儿也干不了，这可不就是同步么。
 
@@ -671,13 +671,11 @@ linux的消息队列可以认为是个链表结构，linux内核有一个**msgqu
 
 ### NIO
 
-JDK 1.4中引入了NIO，这是一种同步非阻塞的IO，基于Reactor模型。
+JDK 1.4中引入了NIO，这是一种同步非阻塞的IO，**基于Reactor模型**。
 
-NIO中有一些概念：
++ **Buffer，缓冲区的概念**，一般都是将数据写入Buffer中，然后从Buffer中读取数据，有IntBuffer、LongBuffer、CharBuffer等很多种针对基础数据类型的Buffer
 
-+ **Buffer，缓冲区的概念**，一般都是将数据写入Buffer中，然后从Buffer中读取数据，有IntBuffer、LongBuffer、CharBuffer等很多种针对基础数据类型的Buffer。
-
-+ **Channel**，**NIO中都是通过Channel来进行数据读写的**。
++ **Channel，NIO中都是通过Channel来进行数据读写的**
   + 一个客户端对应一个channel。
   + 一次请求结束之后，服务的线程就会被销毁掉，这是很关键的一点。
 
@@ -706,18 +704,18 @@ AIO是基于**Proactor模型的**，就是异步非阻塞模型。
 
 ### 同步阻塞 vs 同步非阻塞 vs 异步非阻塞
 
-**BIO的这个同步阻塞**
+**BIO同步阻塞**
 
 - 不是完全针对的网络通信模型去说的，针对的是磁盘文件的IO读写，FileInputStream，BIO，卡在那儿，直到你读写完成了才可以
 
-**NIO为啥是同步非阻塞**
+**NIO同步非阻塞**
 
 - 就是说通过NIO的FileChannel发起个文件IO操作
 - 其实发起之后就返回了，你可以干别的事儿，这就是非阻塞
 - 但是接下来你还得不断的去轮询操作系统，看IO操作完事儿了没有。
 - 也可以使用FileChannel这种NIO的模型，去读写磁盘文件，读数据，发起读数据的请求之后，你不是阻塞住的，你可以干别的事儿，但是你在干别的事儿的同时，还得来时不时的自己去轮询操作系统读数据的状态，看看人家读好了没有「核心：始终需要时不时自己问OS，干好了吗？干好了吗？主要是OS完成之后不会主动回调通知你」
 
-**AIO为啥是异步非阻塞**
+**AIO异步非阻塞**
 
 - 就是说通过AIO发起个文件IO操作之后
 - 你立马就返回可以干别的事儿了，接下来你也不用管了
@@ -736,7 +734,7 @@ AIO是基于**Proactor模型的**，就是异步非阻塞模型。
 - 底层做网络通信这一块就是基于Netty来的
 - 分布式服务框架，服务之间进行远程通信，也可以基于Netty来
 
-crud的业务系统，一般是不会用netty的，比如说API网关系统，IM即时通讯系统。 SocketChannel 与 NioSocketChannel代表一组链接
+CRUD的业务系统，一般是不会用netty的，比如说API网关系统，IM即时通讯系统。 SocketChannel 与 NioSocketChannel代表一组链接
 
 ![](../images/netty-core1.png)
 
@@ -828,7 +826,7 @@ socket.getOutputStream().write(arr);
 
 **减少一次拷贝，但是并不减少切换次数，一共是4次切换，3次拷贝**
 
-mmap技术是主要在RocketMQ里来使用的，公众号：狸猫技术窝，《从0开始带你成为消息中间件高手》的专栏，RocketMQ，里面剖析了一下，RocketMQ底层主要就是基于mmap技术来提升了磁盘文件的读写，性能
+
 
 ### 零拷贝
 
